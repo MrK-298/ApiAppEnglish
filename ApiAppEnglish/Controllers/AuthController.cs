@@ -125,5 +125,118 @@ namespace ApiAppEnglish.Controllers
                 return BadRequest(new { message = "Invalid token" });
             }
         }
+        [HttpPost("sentCode")]
+        public IActionResult SentVerificationCode(ForgotPasswordViewModel model)
+        {
+            var user = _context.users.SingleOrDefault(p => p.Email == model.email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var verificationCode = GenerateVerificationCode.GenerateCode();
+            _userRepository.SaveVerificationCode(user.Id, verificationCode);
+
+            SendMail.SendEmail(model.email, "Mã xác minh", verificationCode, "");
+
+            return Ok(new { VerificationCode = verificationCode });
+        }
+        [HttpPost("resetPassword")]
+        public IActionResult ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = _userRepository.GetUserByEmail(model.email);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (!_userRepository.VerifyCode(user.Id, model.verificationCode))
+            {
+                return BadRequest("Invalid verification code");
+            }
+
+            user.passWord = new PasswordHasher<User>().HashPassword(null, model.newPassword);
+            _userRepository.UpdateUser(user);
+
+            return Ok();
+        }
+        [HttpPost("Logout")]
+        public IActionResult Logout(String token)
+        {
+            // Lấy token từ request
+            if (!string.IsNullOrEmpty(token))
+            {
+                Blacklist.Add(token);
+                return Ok(new { Message = "Logout success" });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Invalid token" });
+            }
+        }
+        [HttpPut("ChangePassword")]
+        public IActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            var user = _context.users.SingleOrDefault(p => p.Id == model.Id);
+            if (user == null)
+            {
+                return BadRequest("Not user found");
+            }
+            var passwordHasher = new PasswordHasher<User>();
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.passWord, model.oldPassword);
+            if (passwordVerificationResult == PasswordVerificationResult.Success)
+            {
+                if (model.newPassword == model.verifyNewPassword)
+                {
+                    user.passWord = new PasswordHasher<User>().HashPassword(null, model.newPassword);
+                    _userRepository.UpdateUser(user);
+                    return Ok("Change password successfully");
+                }
+                return BadRequest("Xác minh mật khẩu sai");
+            }
+            return BadRequest();
+        }
+        [HttpPut("ChangeProfile")]
+        public IActionResult ChangeProfile(ChangeProfileViewModel model)
+        {
+            var user = _context.users.SingleOrDefault(p => p.Id == model.Id);
+            if (user == null)
+            {
+                return BadRequest("Not user found");
+            }
+            user.Email = model.email;
+            user.fullName = model.Name;
+            _userRepository.UpdateUser(user);
+            var updatedClaims = new List<Claim>
+            {
+                new Claim("Fullname", user.fullName),
+                new Claim("Id", user.Id.ToString()),
+                new Claim("Email", user.Email),
+            };
+
+            var updatedToken = new JwtSecurityToken(
+                issuer: "https://localhost:7142/swagger",
+                audience: "api",
+                claims: updatedClaims,
+                expires: DateTime.UtcNow.AddHours(12),
+                signingCredentials: new SigningCredentials(_secretKey, SecurityAlgorithms.HmacSha256)
+            );
+
+            var updatedTokenString = new JwtSecurityTokenHandler().WriteToken(updatedToken);
+
+            // Trả về token mới
+            return Ok(new { Token = updatedTokenString, Message = "Profile updated successfully" });
+        }
+        [HttpGet("UserInfo")]
+        public IActionResult getUserInfo(int id)
+        {
+            var user = _context.users.SingleOrDefault(p => p.Id == id);
+            if (user == null)
+            {
+                return BadRequest("Not user found");
+            }
+            return Ok(user);
+        }
     }
 }

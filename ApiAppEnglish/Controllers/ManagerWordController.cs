@@ -35,6 +35,7 @@ namespace ApiAppEnglish.Controllers
                     word = model.word,
                     definition = model.definition,
                     UserId = model.userId,
+                    phonetic = model.phonetic,
                 };
                 _context.listWords.Add(word);
                 _context.SaveChanges();

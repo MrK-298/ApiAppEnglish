@@ -12,5 +12,6 @@ namespace ApiAppEnglish.Data.EF
         public string word { get; set; }
         public string definition { get; set; }
         public int UserId { get; set; }
+        public string phonetic { get; set; }
     }
 }
