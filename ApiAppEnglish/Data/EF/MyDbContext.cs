@@ -11,6 +11,7 @@ namespace ApiAppEnglish.Data.EF
         public DbSet<Homework> homeWorks { get; set; }
         public DbSet<ListWord> listWords { get; set; }
         public DbSet<Topic> topic { get; set; }
+        public DbSet<DetailHomework> detailHomeworks { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

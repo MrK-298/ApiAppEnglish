@@ -11,6 +11,7 @@ namespace ApiAppEnglish.Data.EF
         public int Id { get; set; }
         public string title { get; set; }
         public string content { get; set; }
+        public ICollection<Homework> homeworks { get; set; }
 
     }
 }

@@ -141,7 +141,7 @@ namespace ApiAppEnglish.Controllers
 
             return Ok(new { VerificationCode = verificationCode });
         }
-        [HttpPost("resetPassword")]
+        [HttpPut("resetPassword")]
         public IActionResult ResetPassword(ResetPasswordViewModel model)
         {
             var user = _userRepository.GetUserByEmail(model.email);

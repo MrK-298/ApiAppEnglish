@@ -9,8 +9,8 @@ namespace ApiAppEnglish.Data.EF
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string title { get; set; }
-        public string questions { get; set; }
-        public string answers { get; set; }
+        public string title { get; set; }     
+        public int topicId { get; set; }
+
     }
 }

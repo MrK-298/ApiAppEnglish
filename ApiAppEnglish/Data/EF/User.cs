@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApiAppEnglish.Data.EF
 {
+    [Table("User")]
     public class User
     {
         [Key]

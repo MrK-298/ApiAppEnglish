@@ -4,6 +4,7 @@ using ApiAppEnglish.Data.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiAppEnglish.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240101032031_update6")]
+    partial class update6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,12 +34,6 @@ namespace ApiAppEnglish.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<int>("homeworkId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isDone")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("score")
                         .HasColumnType("int");
 
                     b.Property<int>("userId")
@@ -59,16 +56,22 @@ namespace ApiAppEnglish.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("TopicId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("isDone")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("score")
+                        .HasColumnType("int");
+
                     b.Property<string>("title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("topicId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("topicId");
+                    b.HasIndex("TopicId");
 
                     b.ToTable("Homework");
                 });
@@ -186,9 +189,7 @@ namespace ApiAppEnglish.Migrations
                 {
                     b.HasOne("ApiAppEnglish.Data.EF.Topic", null)
                         .WithMany("homeworks")
-                        .HasForeignKey("topicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TopicId");
                 });
 
             modelBuilder.Entity("ApiAppEnglish.Data.EF.ListWord", b =>
