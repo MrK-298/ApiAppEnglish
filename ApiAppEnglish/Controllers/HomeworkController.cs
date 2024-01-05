@@ -42,16 +42,33 @@ namespace ApiAppEnglish.Controllers
         {
             if (model != null)
             {
-                var homework = new DetailHomework
+                var existingHomework = _context.detailHomeworks
+                    .FirstOrDefault(dh => dh.homeworkId == model.homeworkId && dh.userId == model.userId);
+
+                if (existingHomework != null)
                 {
-                    homeworkId = model.homeworkId,
-                    score = model.score,
-                    userId = model.userId,
-                    isDone = true,
-                };
-                _context.detailHomeworks.Add(homework);
-                _context.SaveChanges();
-                return Ok(homework);
+                    existingHomework.score = model.score;
+                    _context.detailHomeworks.Update(existingHomework);
+                    _context.SaveChanges();
+
+                    return Ok(existingHomework);
+                }
+                else
+                {
+                    // Nếu chưa có bản ghi, tạo mới
+                    var homework = new DetailHomework
+                    {
+                        homeworkId = model.homeworkId,
+                        score = model.score,
+                        userId = model.userId,
+                        isDone = true,
+                    };
+
+                    _context.detailHomeworks.Add(homework);
+                    _context.SaveChanges();
+
+                    return Ok(homework);
+                }
             }
             return BadRequest("Save failed");
         }
